@@ -26,22 +26,23 @@ function addbutton_menu() {
 function addbutton_block($op = 'list', $delta = 0, $edit = array()) {
   $types = addbutton_get_types();
   if ($op == 'list') {
-    foreach ($types as $key=>$val) {
-      $blocks[] = array(
-        'info' => t('Add Button: @type', array('@type' => $val)),
-        'cache' => BLOCK_CACHE_PER_PAGE, 
-      );
-    }
+    if (is_array($types) && count($types) > 0)
+      foreach ($types as $key=>$val) {
+        $blocks[] = array(
+          'info' => t('Add Button: @type', array('@type' => $val)),
+          'cache' => BLOCK_CACHE_PER_PAGE, 
+        );
+      }
     return $blocks;
   }
   else if ($op == 'view') {
-    dsm('Delta:' . $delta);
     return addbutton_showblock($delta);
   }
 }
 
 /**
- * Produce the output for the button to be rendered.
+ * Produce the output for the button to be rendered.  Only show
+ * button if user has access to create that content type.
  * 
  * @param integer $delta block number (from hook_block)
  */
@@ -49,12 +50,15 @@ function addbutton_showblock($delta) {
   $typelist = addbutton_get_types();
   $keys = array_keys($typelist);
   $type = $keys[$delta];
-  $label = t('Add @type', array('@type' => $typelist[$type]));
-  $link = "/node/add/$type";
-  $output = array(
-    'subject' => $label,
-    content => "<input type=\"BUTTON\" value=\"$label\" onclick=\"window.location.href='$link'\" \\>",
-    );
+  if (user_access("create $type content")) {
+    // check for access to create the content type
+    $label = t('Add @type', array('@type' => $typelist[$type]));
+    $link = "/node/add/$type";
+    $output = array(
+      'subject' => $label,
+      content => "<input type=\"BUTTON\" value=\"$label\" onclick=\"window.location.href='$link'\" \\>",
+      );
+  }
   return $output;
 }
 
@@ -96,7 +100,7 @@ function addbutton_get_all_types() {
 function addbutton_get_types() {
   $types = variable_get('addbutton_types', 0);
   $alltypes = addbutton_get_all_types();
-  if (is_array($types)) {
+  if (is_array($types) && count($types) > 0) {
     foreach ($types as $key=>$val) {
       if (isset($alltypes[$key]) && $key === $val) {
         //check that it actually is a content type and that it is selected
