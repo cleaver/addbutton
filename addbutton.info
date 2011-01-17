@@ -1,0 +1,5 @@
+name = "Add Button"
+description = "Create Add Button for content types"
+;dependencies[] = 
+
+core = 6.x

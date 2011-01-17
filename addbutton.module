@@ -1,0 +1,108 @@
+<?php
+
+/**
+ * Implement hook_menu()
+ * 
+ */
+function addbutton_menu() {
+  $items['admin/settings/addbutton'] = array(
+    'title' => 'Add Button ',
+    'description' => 'Configure settings for Add Button module.',
+    'page callback' => 'drupal_get_form',
+    'page arguments' => array('addbutton_settings'),
+    'access arguments' => array('administer blocks'),
+  );
+  return $items;
+}
+
+
+/**
+ * Implement hook_block()
+ * 
+ * @param string $op
+ * @param integer $delta
+ * @param array $edit
+ */
+function addbutton_block($op = 'list', $delta = 0, $edit = array()) {
+  $types = addbutton_get_types();
+  if ($op == 'list') {
+    foreach ($types as $key=>$val) {
+      $blocks[] = array(
+        'info' => t('Add Button: @type', array('@type' => $val)),
+        'cache' => BLOCK_CACHE_PER_PAGE, 
+      );
+    }
+    return $blocks;
+  }
+  else if ($op == 'view') {
+    dsm('Delta:' . $delta);
+    return addbutton_showblock($delta);
+  }
+}
+
+/**
+ * Produce the output for the button to be rendered.
+ * 
+ * @param integer $delta block number (from hook_block)
+ */
+function addbutton_showblock($delta) {
+  $typelist = addbutton_get_types();
+  $keys = array_keys($typelist);
+  $type = $keys[$delta];
+  $label = t('Add @type', array('@type' => $typelist[$type]));
+  $link = "/node/add/$type";
+  $output = array(
+    'subject' => $label,
+    content => "<input type=\"BUTTON\" value=\"$label\" onclick=\"window.location.href='$link'\" \\>",
+    );
+  return $output;
+}
+
+
+/**
+ * Define admin settings form.
+ * 
+ * @return the form
+ */
+function addbutton_settings() {
+      $form['addbutton_types'] = array(
+      '#type' => 'checkboxes', 
+      '#title' => t('Content Types'), 
+      '#default_value' => variable_get('addbutton_types', 0), 
+      '#options' => addbutton_get_all_types(),
+    );
+    return system_settings_form($form);
+}
+
+
+/**
+ * Get a list of all content types.
+ * 
+ * @return array containing all enabled content types - key is the internal content type, value is the human-readable name.
+ */
+function addbutton_get_all_types() {
+  foreach (node_get_types() as $type) {
+    $result[$type->type] = $type->name;
+  }
+  return $result;
+}
+
+
+/**
+ * Get a list of all content types selected for add buttons.
+ * 
+ * @return array containing all selected content types - key is the internal content type, value is the human-readable name.
+ */
+function addbutton_get_types() {
+  $types = variable_get('addbutton_types', 0);
+  $alltypes = addbutton_get_all_types();
+  if (is_array($types)) {
+    foreach ($types as $key=>$val) {
+      if (isset($alltypes[$key]) && $key === $val) {
+        //check that it actually is a content type and that it is selected
+        $result[$key] = $alltypes[$key];
+      }
+    }
+  }
+  return $result;
+}
