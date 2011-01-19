@@ -63,6 +63,12 @@ function addbutton_showblock($delta) {
 }
 
 
+function addbutton_theme($existing, $type, $theme, $path) {
+  return array('addbutton_formatter' => array(
+    'arguments' => array()));
+}
+
+
 /**
  * Define admin settings form.
  * 
