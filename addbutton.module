@@ -54,20 +54,38 @@ function addbutton_showblock($delta) {
     // check for access to create the content type
     $label = t('Add @type', array('@type' => $typelist[$type]));
     $link = "/node/add/$type";
-    $output = array(
-      'subject' => $label,
-      content => "<input type=\"BUTTON\" value=\"$label\" onclick=\"window.location.href='$link'\" \\>",
-      );
   }
+  $output = theme('addbutton_format', $label, $link);
   return $output;
 }
 
 
+/**
+ * Implement hook_theme()
+ * 
+ * @param $existing
+ * @param $type
+ * @param $theme
+ * @param $path
+ */
 function addbutton_theme($existing, $type, $theme, $path) {
-  return array('addbutton_formatter' => array(
-    'arguments' => array()));
+  return array('addbutton_format' => array(
+    'arguments' => array('label' => null, 'link' => null)));
 }
 
+/**
+ * Theme function for button.
+ * 
+ * @param $label label for button eg. 'Add Page'
+ * @param $link link for button
+ */
+function theme_addbutton_format($label, $link) {
+  $output = array(
+    'subject' => $label,
+    'content' => "<input type=\"BUTTON\" value=\"$label\" onclick=\"window.location.href='$link'\" \\>",
+  );
+  return $output;
+}
 
 /**
  * Define admin settings form.
