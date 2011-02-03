@@ -30,7 +30,7 @@ function addbutton_block($op = 'list', $delta = 0, $edit = array()) {
       foreach ($types as $key=>$val) {
         $blocks[] = array(
           'info' => t('Add Button: @type', array('@type' => $val)),
-          'cache' => BLOCK_CACHE_PER_PAGE, 
+          'cache' => BLOCK_CACHE_PER_ROLE, 
         );
       }
     return $blocks;
